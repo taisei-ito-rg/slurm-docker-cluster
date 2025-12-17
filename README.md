@@ -1,149 +1,154 @@
 # Slurm Docker Cluster
 
 <p align="center">
-    <b> <a href="./readme/README_EN.md">English</a> | <a href="./readme/README_CN.md">简体中文</a> | 日本語 </b>
+    <b> English | <a href="./readme/README_CN.md">简体中文</a> | <a href="./readme/README_JP.md">日本語</a> </b>
 </p>
 
-**Slurm Docker Cluster**は、Docker Composeを使用して迅速にデプロイできるマルチコンテナSlurmクラスタです。このリポジトリは、開発、テスト、または軽量な使用のための堅牢なSlurm環境のセットアッププロセスを簡素化します。
+**Slurm Docker Cluster** is a multi-container Slurm cluster designed for rapid
+deployment using Docker Compose. This repository simplifies the process of
+setting up a robust Slurm environment for development, testing, or lightweight
+usage.
 
-## 🏁 はじめに
+## 🏁 Getting Started
 
-DockerでSlurmを起動して実行するには、以下のツールがインストールされていることを確認してください：
+To get up and running with Slurm in Docker, make sure you have the following tools installed:
 
 - **[Docker](https://docs.docker.com/get-docker/)**
 - **[Docker Compose](https://docs.docker.com/compose/install/)**
 
-リポジトリをクローンします：
+Clone the repository:
 
 ```bash
 git clone https://github.com/giovtorres/slurm-docker-cluster.git
 cd slurm-docker-cluster
 ```
 
-## 🔢 Slurmバージョンの選択
+## 🔢 Choosing Your Slurm Version
 
-このプロジェクトは複数のSlurmバージョンをサポートしています。バージョンを選択するには、`.env.example`を`.env`にコピーして`SLURM_VERSION`を設定します：
+This project supports multiple Slurm versions. To select your version, copy `.env.example` to `.env` and set `SLURM_VERSION`:
 
 ```bash
 cp .env.example .env
-# .envを編集して設定:
-SLURM_VERSION=25.05.3   # 最新安定版（デフォルト）
-# または:
-SLURM_VERSION=24.11.6   # 以前の安定版リリース
+# Edit .env and set:
+SLURM_VERSION=25.05.3   # Latest stable (default)
+# Or:
+SLURM_VERSION=24.11.6   # Previous stable release
 ```
 
-**サポートされているバージョン:** 25.05.x, 24.11.x
+**Supported versions:** 25.05.x, 24.11.x
 
-## 🏗️ アーキテクチャサポート
+## 🏗️ Architecture Support
 
-このプロジェクトは**AMD64 (x86_64)**と**ARM64 (aarch64)**の両方のアーキテクチャをサポートしています。ビルドシステムは自動的にアーキテクチャを検出します。特別な設定は不要です - 単にビルドして実行してください：
+This project supports both **AMD64 (x86_64)** and **ARM64 (aarch64)**
+architectures. The build system automatically detects your architecture. No
+special configuration is needed - simply build and run:
 
 ```bash
 make build
 make up
 ```
 
-## 🚀 クイックスタート（Makeを使用）
+## 🚀 Quick Start (Using Make)
 
-最も簡単な開始方法は、提供されているMakefileを使用することです：
+The easiest way to get started is using the provided Makefile:
 
 ```bash
-# クラスタをビルドして起動
+# Build and start the cluster
 make up
 
-# すべてが正常に動作することを確認するためにテストを実行
+# Run tests to verify everything works
 make test
 
-# クラスタのステータスを表示
+# View cluster status
 make status
 ```
 
-利用可能なすべてのコマンドを確認：
+See all available commands:
 ```bash
 make help
 ```
 
-## 📦 コンテナとボリューム
+## 📦 Containers and Volumes
 
-このセットアップは以下のコンテナで構成されています：
+This setup consists of the following containers:
 
-- **mysql**: ジョブとクラスタのデータを保存します。
-- **slurmdbd**: Slurmデータベースを管理します。
-- **slurmctld**: ジョブとリソース管理を担当するSlurmコントローラ。
-- **slurmrestd**: クラスタへのHTTP/JSONアクセス用のREST APIデーモン。
-- **c1, c2**: 計算ノード（`slurmd`を実行）。
+- **mysql**: Stores job and cluster data.
+- **slurmdbd**: Manages the Slurm database.
+- **slurmctld**: The Slurm controller responsible for job and resource management.
+- **slurmrestd**: REST API daemon for HTTP/JSON access to the cluster.
+- **c1, c2**: Compute nodes (running `slurmd`).
 
-### 永続ボリューム：
+### Persistent Volumes:
 
-- `etc_munge`: `/etc/munge`にマウント - 認証キー
-- `etc_slurm`: `/etc/slurm`にマウント - 設定ファイル（ライブ編集可能）
-- `slurm_jobdir`: `/data`にマウント - すべてのノードで共有されるジョブファイル
-- `var_lib_mysql`: `/var/lib/mysql`にマウント - データベースの永続化
-- `var_log_slurm`: `/var/log/slurm`にマウント - ログファイル
+- `etc_munge`: Mounted to `/etc/munge` - Authentication keys
+- `etc_slurm`: Mounted to `/etc/slurm` - Configuration files (allows live editing)
+- `slurm_jobdir`: Mounted to `/data` - Job files shared across all nodes
+- `var_lib_mysql`: Mounted to `/var/lib/mysql` - Database persistence
+- `var_log_slurm`: Mounted to `/var/log/slurm` - Log files
 
-## 🛠️ クラスタのビルドと起動
+## 🛠️ Building and Starting the Cluster
 
-### ビルド
+### Building
 
-クラスタをビルドして起動する最も簡単な方法はMakeを使用することです：
+The easiest way to build and start the cluster is using Make:
 
 ```bash
-# デフォルトバージョン（25.05.3）でイメージをビルド
+# Build images with default version (25.05.3)
 make build
 
-# または1つのコマンドでビルドして起動
+# Or build and start in one command
 make up
 ```
 
-別のバージョンをビルドするには、`.env`の`SLURM_VERSION`を更新します：
+To build a different version, update `SLURM_VERSION` in `.env`:
 
 ```bash
 make set-version VER=24.11.6
 
-# ビルド
+# Build
 make build
 ```
 
-または、Docker Composeを直接使用します：
+Alternatively, use Docker Compose directly:
 
 ```bash
 docker compose build
 ```
 
-### 起動
+### Starting
 
-デタッチモードでクラスタを起動：
+Start the cluster in detached mode:
 
 ```bash
 make up
 ```
 
-クラスタのステータスを確認：
+Check cluster status:
 
 ```bash
 make status
 ```
 
-ログを表示：
+View logs:
 
 ```bash
 make logs
 ```
 
-> **注意**: クラスタは初回起動時にSlurmDBDに自動的に登録されます。すべてのサービスが正常になり自動登録されるまで、起動後約15〜20秒待ってください。
+> **Note**: The cluster automatically registers itself with SlurmDBD on first startup. Wait about 15-20 seconds after starting for all services to become healthy and auto-register.
 
-## 🖥️ クラスタの使用
+## 🖥️ Using the Cluster
 
-### コントローラへのアクセス
+### Accessing the Controller
 
-Slurmコントローラでシェルを開きます：
+Open a shell in the Slurm controller:
 
 ```bash
 make shell
-# または: docker exec -it slurmctld bash
+# Or: docker exec -it slurmctld bash
 ```
 
-クラスタのステータスを確認：
+Check cluster status:
 
 ```bash
 [root@slurmctld /]# sinfo
@@ -151,9 +156,9 @@ PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
 normal*      up   infinite      2   idle c[1-2]
 ```
 
-### ジョブの投入
+### Submitting Jobs
 
-`/data`ディレクトリはジョブファイル用にすべてのノードで共有されています：
+The `/data` directory is shared across all nodes for job files:
 
 ```bash
 [root@slurmctld /]# cd /data/
@@ -163,43 +168,44 @@ Submitted batch job 2
 c1
 ```
 
-### サンプルジョブの実行
+### Running Example Jobs
 
-付属のサンプルスクリプトを使用：
+Use the included example scripts:
 
 ```bash
 make run-examples
 ```
 
-これにより、シンプルなホスト名テスト、CPU集約的なワークロード、マルチノードジョブなどのサンプルジョブが実行されます。
+This runs sample jobs including simple hostname tests, CPU-intensive workloads, multi-node jobs, and more.
 
-## 🔄 クラスタの管理
+## 🔄 Cluster Management
 
-クラスタを停止（データは保持）：
+Stop the cluster (keeps data):
 
 ```bash
 make down
 ```
 
-クラスタを再起動：
+Restart the cluster:
 
 ```bash
 make up
 ```
 
-完全なクリーンアップ（すべてのデータとボリュームを削除）：
+Complete cleanup (removes all data and volumes):
 
 ```bash
 make clean
 ```
 
-設定の更新、バージョンの切り替え、テストなどのその他のワークフローについては、以下の**一般的なワークフロー**セクションを参照してください。
+For more workflows including configuration updates, version switching, and testing, see the **Common Workflows** section below.
 
-## ⚙️ 高度な設定
+## ⚙️ Advanced Configuration
 
-### マルチアーキテクチャビルド
+### Multi-Architecture Builds
 
-クロスプラットフォームビルドまたは明示的なアーキテクチャ選択（`arm64`または`amd64`）には、Docker Buildxを使用します：
+For cross-platform builds or explicit architecture selection (`arm64` or
+`amd64`), use Docker Buildx:
 
 ```bash
 docker buildx build \
@@ -211,179 +217,179 @@ docker buildx build \
   .
 ```
 
-**注意**: クロスプラットフォームビルドはQEMUエミュレーションを使用するため、ネイティブビルドよりも遅い場合があります。
+**Note**: Cross-platform builds use QEMU emulation and may be slower than native builds.
 
-### ライブ設定更新
+### Live Configuration Updates
 
-`etc_slurm`ボリュームがマウントされているため、再ビルドせずに設定を変更できます：
+With the `etc_slurm` volume mounted, you can modify configurations without rebuilding:
 
-**方法1 - 直接編集（再起動後も永続化）:**
+**Method 1 - Direct editing (persists across restarts):**
 ```bash
 docker exec -it slurmctld vi /etc/slurm/slurm.conf
 make reload-slurm
 ```
 
-**方法2 - config/ディレクトリから変更をプッシュ:**
+**Method 2 - Push changes from config/ directory:**
 ```bash
-# config/25.05/またはconfig/common/の設定ファイルをローカルで編集
+# Edit config files locally in config/25.05/ or config/common/
 vi config/25.05/slurm.conf
 
-# コンテナにプッシュ（.envからバージョンを自動検出）
+# Push to containers (automatically detects version from .env)
 make update-slurm FILES="slurm.conf"
 
-# または複数のファイルを更新
+# Or update multiple files
 make update-slurm FILES="slurm.conf slurmdbd.conf"
 ```
 
-**方法3 - 新しい設定でイメージを再ビルド:**
+**Method 3 - Rebuild image with new configs:**
 ```bash
-# 恒久的な変更の場合
+# For permanent changes
 vi config/25.05/slurm.conf
 make rebuild
 ```
 
-これにより、ノードの追加/削除や新しい設定のテストを動的に簡単に行うことができます。
+This makes it easy to add/remove nodes or test new configuration settings dynamically.
 
-## 📖 一般的なワークフロー
+## 📖 Common Workflows
 
-### Makeの使用（推奨）
+### Using Make (Recommended)
 
-#### 初回セットアップ:
+#### First-time Setup:
 ```bash
-# クラスタをビルドして起動
+# Build and start cluster
 make up
 
-# すべてが正常に動作していることを確認
+# Verify everything is working
 make test
 
-# クラスタのステータスを確認
+# Check cluster status
 make status
 ```
 
-#### 日常的な開発:
+#### Daily Development:
 ```bash
-# ログを表示
+# View logs
 make logs
 
-# コントローラでシェルを開く
+# Open shell in controller
 make shell
 
-# シェル内:
+# Inside shell:
 cd /data
 sbatch --wrap="hostname"
 squeue
 ```
 
-#### 変更のテスト:
+#### Testing Changes:
 ```bash
-# 設定ファイルを編集した後
+# After editing config files
 make down
 make start
 make test
 ```
 
-#### クリーンアップ:
+#### Cleanup:
 ```bash
-# クラスタを停止（データは保持）
+# Stop cluster (keeps data)
 make down
 
-# 完全なクリーンアップ（すべてのデータを削除）
+# Complete cleanup (removes all data)
 make clean
 ```
 
-### 例: テストジョブの実行
+### Example: Running Test Jobs
 
 ```bash
-# クラスタを起動
+# Start cluster
 make start
 
-# サンプルジョブをクラスタにコピー
+# Copy example jobs to cluster
 docker cp examples/jobs slurmctld:/data/
 
-# シンプルなジョブを投入
+# Submit a simple job
 docker exec slurmctld bash -c "cd /data/jobs && sbatch simple_hostname.sh"
 
-# マルチノードジョブを投入
+# Submit a multi-node job
 docker exec slurmctld bash -c "cd /data/jobs && sbatch multi_node.sh"
 
-# ジョブキューを監視
+# Watch job queue
 docker exec slurmctld squeue
 
-# ジョブの出力を表示
+# View job outputs
 docker exec slurmctld bash -c "ls -lh /data/jobs/*.out"
 docker exec slurmctld bash -c "cat /data/jobs/hostname_test_*.out"
 ```
 
-### 例: 異なるSlurmバージョンのテスト
+### Example: Testing Different Slurm Versions
 
 ```bash
-# 現在のバージョンを確認
+# Check current version
 make version
 
-# サポートされているすべてのバージョンをビルド
+# Build all supported versions
 make build-all
 
-# 特定のバージョンをテスト
+# Test a specific version
 make test-version VER=24.11.6
 
-# すべてのバージョンをテスト（包括的）
+# Test all versions (comprehensive)
 make test-all
 
-# 別のバージョンに切り替えて使用
+# Switch to a different version and use it
 make set-version VER=24.11.6
 make rebuild
 make test
 ```
 
-### 例: 開発ワークフロー
+### Example: Development Workflow
 
 ```bash
-# 朝: クラスタを起動
+# Morning: Start cluster
 make start
 
-# 機能の開発、ローカルテスト
+# Work on features, test locally
 make test
 
-# 問題が発生した場合はログを確認
+# Check logs if issues arise
 make logs
 
-# 夕方: クラスタを停止
+# Evening: Stop cluster
 make down
 
-# 翌日: クイック再起動
+# Next day: Quick restart
 make start
 ```
 
-### Makefileコマンドリファレンス
+### Makefile Commands Reference
 
-| コマンド | 説明 |
+| Command | Description |
 |---------|-------------|
-| `make help` | 利用可能なすべてのコマンドを表示 |
-| `make build` | Dockerイメージをビルド |
-| `make up` | コンテナを起動 |
-| `make down` | コンテナを停止 |
-| `make clean` | コンテナとボリュームを削除 |
-| `make logs` | コンテナのログを表示 |
-| `make test` | テストスイートを実行 |
-| `make status` | クラスタのステータスを表示 |
-| `make shell` | slurmctldでシェルを開く |
-| `make update-slurm FILES="..."` | config/ディレクトリから設定ファイルを更新 |
-| `make reload-slurm` | 再起動せずにSlurm設定をリロード |
-| **マルチバージョンコマンド** | |
-| `make version` | 現在のSlurmバージョンを表示 |
-| `make set-version VER=24.11.6` | .envでSlurmバージョンを設定 |
-| `make build-all` | サポートされているすべてのバージョンをビルド |
-| `make test-version VER=24.11.6` | 特定のバージョンをテスト |
-| `make test-all` | すべてのバージョンをテスト |
+| `make help` | Show all available commands |
+| `make build` | Build Docker images |
+| `make up` | Start containers |
+| `make down` | Stop containers |
+| `make clean` | Remove containers and volumes |
+| `make logs` | Show container logs |
+| `make test` | Run test suite |
+| `make status` | Show cluster status |
+| `make shell` | Open shell in slurmctld |
+| `make update-slurm FILES="..."` | Update config files from config/ directory |
+| `make reload-slurm` | Reload Slurm config without restart |
+| **Multi-Version Commands** | |
+| `make version` | Show current Slurm version |
+| `make set-version VER=24.11.6` | Set Slurm version in .env |
+| `make build-all` | Build all supported versions |
+| `make test-version VER=24.11.6` | Test a specific version |
+| `make test-all` | Test all supported versions |
 
-## 🤝 コントリビューション
+## 🤝 Contributing
 
-コミュニティからのコントリビューションを歓迎します！機能の追加、バグの修正、ドキュメントの改善を行いたい場合は：
+Contributions are welcomed from the community! If you want to add features, fix bugs, or improve documentation:
 
-1. このリポジトリをフォークします。
-2. 新しいブランチを作成します：`git checkout -b feature/your-feature`
-3. プルリクエストを提出します。
+1. Fork this repo.
+2. Create a new branch: `git checkout -b feature/your-feature`.
+3. Submit a pull request.
 
-## 📄 ライセンス
+## 📄 License
 
-このプロジェクトは[MITライセンス](LICENSE)の下でライセンスされています。
+This project is licensed under the [MIT License](LICENSE).
